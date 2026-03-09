@@ -53,7 +53,7 @@ export function requirePayment(options: RequirePaymentOptions) {
         },
       };
 
-      _cachedMiddleware = paymentMiddleware(routes, server, undefined, undefined, false);
+      _cachedMiddleware = paymentMiddleware(routes, server);
     }
 
     return _cachedMiddleware(req, res, next);
