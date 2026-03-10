@@ -13,6 +13,19 @@ import { getState, NETWORK_IDS } from "./state";
 import type { RequirePaymentOptions } from "./types";
 
 /**
+ * Converts an Express route pattern to an x402 route pattern.
+ * Express uses :param syntax; x402 uses [param] which compiles to [^/]+.
+ *
+ * Examples:
+ *   /api/weather        → /api/weather
+ *   /api/data/:id       → /api/data/[id]
+ *   /api/:v/items/:id   → /api/[v]/items/[id]
+ */
+function toX402Pattern(expressPath: string): string {
+  return expressPath.replace(/:([^/]+)/g, "[$1]");
+}
+
+/**
  * Express middleware factory. Wraps a route with a real x402 V2 payment wall.
  *
  * Usage:
@@ -37,8 +50,14 @@ export function requirePayment(options: RequirePaymentOptions) {
         throw new Error(`Unsupported network: ${config.network}`);
       }
 
+      // Use the Express route pattern (e.g. "/api/data/:id") converted to x402
+      // notation, so parameterised segments match correctly. Falls back to "/*"
+      // if called outside a matched Express route (e.g. in a global middleware).
+      const expressPath: string = req.route?.path ?? "/*";
+      const routeKey = toX402Pattern(expressPath);
+
       const routes = {
-        "/*": {
+        [routeKey]: {
           description:
             options.description ??
             `Payment required: ${options.amount} ${options.currency}`,

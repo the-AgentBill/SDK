@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx --env-file=.env server.ts",
     "start": "node dist/server.js",
-    "build": "tsc"
+    "build": "echo 'No build needed — run with: pnpm dev'"
   },
   "dependencies": {
     "@agent-bill/middleware": "workspace:*",

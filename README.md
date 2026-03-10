@@ -57,8 +57,9 @@ AI Agent                    Your API (AgentBill)         x402.org Facilitator
 ```
 agent-bill/
 ├── packages/
-│   └── middleware/        # @agent-bill/middleware — Express payment wall
-├── examples/              # Coming soon
+│   └── middleware/        # @agent-bill/middleware — Express + Next.js payment wall
+├── examples/
+│   └── express-quickstart/  # Runnable demo server + paying test client
 └── README.md
 ```
 
@@ -96,6 +97,21 @@ app.get(
 app.listen(3000);
 ```
 
+#### Next.js (App Router)
+
+```typescript
+// app/api/weather/route.ts
+import { withPayment } from "@agent-bill/middleware/next";
+
+async function handler(req: NextRequest) {
+  return NextResponse.json({ city: "New York", temp: "72°F" });
+}
+
+export const GET = withPayment({ amount: "0.01", currency: "USDC" }, handler);
+```
+
+Call `agentBill.init()` once in `instrumentation.ts` before any requests are handled.
+
 See [`packages/middleware/README.md`](packages/middleware/README.md) for full API docs.
 
 ---
@@ -103,9 +119,9 @@ See [`packages/middleware/README.md`](packages/middleware/README.md) for full AP
 ## Roadmap
 
 - [x] `@agent-bill/middleware` v0.1 — Express payment wall (x402 V2)
-- [ ] `examples/express-quickstart` — runnable demo server
+- [x] `examples/express-quickstart` — runnable demo server + test client
+- [x] `@agent-bill/middleware` — Next.js App Router support (`withPayment`)
 - [ ] `examples/agent-client` — demo AI agent that auto-pays
-- [ ] `@agent-bill/middleware` — Next.js support
 - [ ] Dashboard — payment analytics per endpoint
 
 ---

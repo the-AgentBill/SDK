@@ -19,6 +19,12 @@
     "dev": "tsc --watch"
   },
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "next": ">=14.0.0"
   },
