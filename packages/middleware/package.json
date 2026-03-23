@@ -40,6 +40,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@coinbase/x402": "^2.1.0",
+    "@x402/core": "^2.7.0",
     "@x402/evm": "^2.6.0",
     "@x402/express": "^2.6.0",
     "@x402/next": "^2.6.0",
