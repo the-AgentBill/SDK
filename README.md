@@ -1,6 +1,6 @@
 # AgentBill
 
-![image](./logo.jpeg)
+![image](./new_logo.png)
 **The "Stripe" for x402 — make any API payable by an AI agent in two lines of code.**
 
 Built on [Base](https://base.org) · Powered by [x402 V2](https://x402.org) · Settles in USDC
