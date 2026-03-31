@@ -1,5 +1,6 @@
 # AgentBill
 
+![image](./logo.jpeg)
 **The "Stripe" for x402 — make any API payable by an AI agent in two lines of code.**
 
 Built on [Base](https://base.org) · Powered by [x402 V2](https://x402.org) · Settles in USDC
@@ -27,7 +28,11 @@ import { agentBill, requirePayment } from "@agent-bill/middleware";
 
 agentBill.init({ receivingAddress: "0xYours", network: "base-sepolia" });
 
-app.get("/api/data", requirePayment({ amount: "0.01", currency: "USDC" }), handler);
+app.get(
+  "/api/data",
+  requirePayment({ amount: "0.01", currency: "USDC" }),
+  handler
+);
 ```
 
 That's it. Your API now accepts USDC payments from any AI agent or x402-compatible client.
@@ -88,7 +93,11 @@ agentBill.init({
 
 app.get(
   "/api/weather",
-  requirePayment({ amount: "0.01", currency: "USDC", description: "Weather data" }),
+  requirePayment({
+    amount: "0.01",
+    currency: "USDC",
+    description: "Weather data",
+  }),
   (req, res) => {
     res.json({ city: "New York", temp: "72°F" });
   }
@@ -138,4 +147,4 @@ MIT
 
 ---
 
-*AgentBill is not affiliated with Coinbase. x402 is an open protocol.*
+_AgentBill is not affiliated with Coinbase. x402 is an open protocol._
