@@ -1,0 +1,31 @@
+{
+  "name": "@agent-bill/client",
+  "version": "0.1.0",
+  "description": "Payment-enabled fetch client for AI agents (x402 protocol)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "license": "MIT",
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@x402/fetch": "^2.6.0",
+    "@x402/evm": "^2.6.0",
+    "viem": "^2.47.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "typescript": "^5.9.3"
+  }
+}
