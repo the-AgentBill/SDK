@@ -1,4 +1,4 @@
-import { createPayingClient } from "@agent-bill/client";
+import { createPayingClient } from "@agent-bill/sdk";
 
 async function main() {
   const privateKey = process.env.CLIENT_PRIVATE_KEY as `0x${string}`;

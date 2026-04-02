@@ -1,5 +1,5 @@
 import express from "express";
-import { agentBill, requirePayment } from "@agent-bill/middleware";
+import { agentBill, requirePayment } from "@agent-bill/sdk";
 
 const app = express();
 agentBill.init({

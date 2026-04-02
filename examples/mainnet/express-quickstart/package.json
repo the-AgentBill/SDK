@@ -8,8 +8,7 @@
     "build": "echo 'No build needed — run with: pnpm dev'"
   },
   "dependencies": {
-    "@agent-bill/client": "workspace:*",
-    "@agent-bill/middleware": "workspace:*",
+    "@agent-bill/sdk": "workspace:*",
     "dotenv": "^17.3.1",
     "express": "^5.2.1"
   },

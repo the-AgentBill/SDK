@@ -24,10 +24,10 @@ AgentBill makes it two lines.
 
 ## What is AgentBill?
 
-A middleware SDK that wraps x402 V2 so developers can add a payment wall to any Express route with minimal setup.
+A unified SDK that wraps x402 V2. Use it as a **server** to add payment walls, or as a **client** to auto-pay endpoints.
 
 ```typescript
-import { agentBill, requirePayment } from "@agent-bill/middleware";
+import { agentBill, requirePayment } from "@agent-bill/sdk";
 
 agentBill.init({ receivingAddress: "0xYours", network: "base-sepolia" });
 
@@ -65,8 +65,7 @@ AI Agent                    Your API (AgentBill)         x402.org Facilitator
 ```
 agent-bill/
 ├── packages/
-│   ├── middleware/        # @agent-bill/middleware — Express + Next.js payment wall
-│   └── client/           # @agent-bill/client — payment-enabled fetch for agents
+│   └── sdk/              # @agent-bill/sdk — unified SDK (server + client)
 ├── examples/
 │   ├── testnet/express-quickstart/   # Base Sepolia demo
 │   └── mainnet/express-quickstart/   # Base mainnet demo (deployed on Railway)
@@ -80,20 +79,20 @@ agent-bill/
 ### Install
 
 ```bash
-npm install @agent-bill/middleware
+npm install @agent-bill/sdk
 ```
 
-### Usage
+### Server — Add a Payment Wall (Express)
 
 ```typescript
 import express from "express";
-import { agentBill, requirePayment } from "@agent-bill/middleware";
+import { agentBill, requirePayment } from "@agent-bill/sdk";
 
 const app = express();
 
 agentBill.init({
   receivingAddress: "0xYourWalletAddress",
-  network: "base-sepolia", // or "base-mainnet"
+  network: "base-sepolia",
 });
 
 app.get(
@@ -111,11 +110,31 @@ app.get(
 app.listen(3000);
 ```
 
-#### Next.js (App Router)
+### Client — Auto-Pay for Endpoints
+
+```typescript
+import { createPayingClient } from "@agent-bill/sdk";
+
+const client = createPayingClient({
+  privateKey: "0xYourWalletPrivateKey",
+  network: "base-sepolia",
+});
+
+const response = await client.fetch("http://localhost:3000/api/weather");
+const data = await response.json();
+```
+
+### Next.js (App Router)
 
 ```typescript
 // app/api/weather/route.ts
-import { withPayment } from "@agent-bill/middleware/next";
+import { agentBill, withPayment } from "@agent-bill/sdk";
+
+// Initialize once (e.g. in instrumentation.ts)
+agentBill.init({
+  receivingAddress: "0xYourWalletAddress",
+  network: "base-sepolia",
+});
 
 async function handler(req: NextRequest) {
   return NextResponse.json({ city: "New York", temp: "72°F" });
@@ -124,18 +143,15 @@ async function handler(req: NextRequest) {
 export const GET = withPayment({ amount: "0.01", currency: "USDC" }, handler);
 ```
 
-Call `agentBill.init()` once in `instrumentation.ts` before any requests are handled.
-
-See [`packages/middleware/README.md`](packages/middleware/README.md) for full API docs.
-
 ---
 
 ## Roadmap
 
-- [x] `@agent-bill/middleware` v0.1 — Express payment wall (x402 V2)
-- [x] `@agent-bill/middleware` — Next.js App Router support (`withPayment`)
+- [x] `@agent-bill/sdk` v0.1 — Unified SDK (server + client)
+- [x] Express payment wall
+- [x] Next.js App Router support
+- [x] Payment-enabled fetch client
 - [x] Mainnet deployment on Railway — [live 402 paywall](https://agent-billmiddleware-production.up.railway.app/api/weather)
-- [x] `@agent-bill/client` v0.1 — payment-enabled fetch for AI agents
 - [ ] Hono adapter — Cloudflare Workers edge support
 - [ ] Dashboard — payment analytics per endpoint
 
