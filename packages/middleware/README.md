@@ -39,7 +39,7 @@ app.get(
 app.listen(3000);
 ```
 
-## Quick Start (Next.js) (App Router)
+## Quick Start: Next.js (App Router)
 
 ### 1. Initialize once
 
