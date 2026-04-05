@@ -8,7 +8,7 @@ Express and Next.js middleware for the [x402 V2](https://x402.org) payment proto
 npm install @agent-bill/middleware
 ```
 
-## Quick Start — Express
+## Quick Start (Express)
 
 ```typescript
 import express from "express";
@@ -16,7 +16,7 @@ import { agentBill, requirePayment } from "@agent-bill/middleware";
 
 const app = express();
 
-// Call once at server start — your wallet address and network
+// Call once at server start: your wallet address and network
 agentBill.init({
   receivingAddress: "0xYourWalletAddress",
   network: "base-sepolia",
@@ -27,7 +27,7 @@ app.get("/api/public", (req, res) => {
   res.json({ message: "Free data" });
 });
 
-// Paid route — requirePayment gates it
+// Paid route: requirePayment gates it
 app.get(
   "/api/weather",
   requirePayment({ amount: "0.01", currency: "USDC", description: "Weather data" }),
@@ -39,7 +39,7 @@ app.get(
 app.listen(3000);
 ```
 
-## Quick Start — Next.js (App Router)
+## Quick Start (Next.js) (App Router)
 
 ### 1. Initialize once
 
@@ -75,8 +75,6 @@ export const GET = withPayment(
 
 Payment is verified *before* your handler runs. Settlement is finalised only after your handler returns a successful response (status < 400).
 
----
-
 ## API
 
 ### `agentBill.init(config)`
@@ -88,7 +86,7 @@ Call **once** when your server starts. Works for both Express and Next.js.
 | `receivingAddress` | `string` | The wallet address that receives USDC payments |
 | `network` | `"base-mainnet" \| "base-sepolia"` | The network to accept payments on |
 
-### `requirePayment(options)` — Express
+### `requirePayment(options)` (Express)
 
 Returns an Express middleware function. Place it before your route handler.
 
@@ -98,7 +96,7 @@ Returns an Express middleware function. Place it before your route handler.
 | `currency` | `"USDC"` | Currency (USDC only for now) |
 | `description` | `string` (optional) | Shown in the 402 response |
 
-### `withPayment(options, handler)` — Next.js
+### `withPayment(options, handler)` (Next.js)
 
 Wraps a Next.js App Router route handler with a payment wall. Import from `@agent-bill/middleware/next`.
 
@@ -108,8 +106,6 @@ Wraps a Next.js App Router route handler with a payment wall. Import from `@agen
 | `options.currency` | `"USDC"` | Currency (USDC only for now) |
 | `options.description` | `string` (optional) | Shown in the 402 response |
 | `handler` | `(req: NextRequest) => Promise<NextResponse>` | The route handler to protect |
-
----
 
 ## How It Works
 

@@ -18,7 +18,7 @@ const client = createPayingClient({
   network: "base-sepolia",
 });
 
-// Drop-in fetch replacement — handles 402 automatically
+// Drop-in fetch replacement. Handles 402 automatically
 const response = await client.fetch("https://api.example.com/data");
 
 const data = await response.json();
@@ -33,9 +33,7 @@ console.log(data);
 4. Client retries the request with the payment signature
 5. Server verifies and returns the data
 
-Your agent pays in USDC on Base — no API keys, no subscriptions, no human in the loop.
-
----
+Your agent pays in USDC on Base. No API keys, no subscriptions, no human in the loop.
 
 ## API
 
@@ -54,8 +52,6 @@ Your agent pays in USDC on Base — no API keys, no subscriptions, no human in t
 |---|---|---|
 | `fetch` | `(input, init?) => Promise<Response>` | Drop-in replacement for `fetch`. Handles 402 automatically |
 | `address` | `0x${string}` | Your wallet address (derived from private key) |
-
----
 
 ## Networks
 

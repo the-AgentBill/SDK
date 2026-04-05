@@ -1,26 +1,24 @@
 # AgentBill
 
 ![image](./new_logo.png)
-**The "Stripe" for x402 — make any API payable by an AI agent in two lines of code.**
+**The "Stripe" for x402. Make any API payable by an AI agent in two lines of code.**
 
 Built on [Base](https://base.org) · Powered by [x402 V2](https://x402.org) · Settles in USDC
 
 **Live demo:** [agent-billmiddleware-production.up.railway.app](https://agent-billmiddleware-production.up.railway.app/api/weather)
 · **Proof of payment:** [Basescan tx](https://basescan.org/tx/0x8be8fc88d7f7fb768315bc4bcd1b438d32b76bfa9ba24a95ed6dacdd2d1224cb)
 
----
 
 ## The Problem
 
 The internet is shifting from humans clicking buttons to **AI agents calling APIs**. But most APIs still require a credit card, a monthly subscription, or a complex API key setup that an agent can't navigate.
 
-The **x402 protocol** (by Coinbase) fixes this: a server returns `402 Payment Required` and the agent pays instantly in USDC — no signup, no OAuth, no human in the loop.
+The **x402 protocol** (by Coinbase) fixes this: a server returns `402 Payment Required` and the agent pays instantly in USDC. No signup, no OAuth, no human in the loop.
 
 **The catch:** wiring up x402 from scratch means configuring resource servers, registering payment schemes, handling CAIP-2 network IDs, and getting the headers right. Most developers won't bother.
 
 AgentBill makes it two lines.
 
----
 
 ## What is AgentBill?
 
@@ -40,39 +38,11 @@ app.get(
 
 That's it. Your API now accepts USDC payments from any AI agent or x402-compatible client.
 
----
 
 ## How It Works
 
-```
-AI Agent                    Your API (AgentBill)         x402.org Facilitator
-    │                               │                            │
-    │── GET /api/data ─────────────►│                            │
-    │◄── 402 + PAYMENT-REQUIRED ────│                            │
-    │                               │                            │
-    │  [signs payment authorization]│                            │
-    │                               │                            │
-    │── GET /api/data ──────────────│                            │
-    │   + PAYMENT-SIGNATURE header  │── verify ─────────────────►│
-    │                               │◄── valid ──────────────────│
-    │◄── 200 + data ────────────────│                            │
-```
+![how it works](./image.png)
 
----
-
-## Project Structure
-
-```
-agent-bill/
-├── packages/
-│   └── sdk/              # @agent-bill/sdk — unified SDK (server + client)
-├── examples/
-│   ├── testnet/express-quickstart/   # Base Sepolia demo
-│   └── mainnet/express-quickstart/   # Base mainnet demo (deployed on Railway)
-└── README.md
-```
-
----
 
 ## Getting Started
 
@@ -82,7 +52,7 @@ agent-bill/
 npm install @agent-bill/sdk
 ```
 
-### Server — Add a Payment Wall (Express)
+### Server - Add a Payment Wall (Express)
 
 ```typescript
 import express from "express";
@@ -110,7 +80,7 @@ app.get(
 app.listen(3000);
 ```
 
-### Client — Auto-Pay for Endpoints
+### Client - Auto-Pay for Endpoints
 
 ```typescript
 import { createPayingClient } from "@agent-bill/sdk";
@@ -143,30 +113,26 @@ async function handler(req: NextRequest) {
 export const GET = withPayment({ amount: "0.01", currency: "USDC" }, handler);
 ```
 
----
 
 ## Roadmap
 
-- [x] `@agent-bill/sdk` v0.1 — Unified SDK (server + client)
+- [x] `@agent-bill/sdk` v0.1: Unified SDK (server + client)
 - [x] Express payment wall
 - [x] Next.js App Router support
 - [x] Payment-enabled fetch client
-- [x] Mainnet deployment on Railway — [live 402 paywall](https://agent-billmiddleware-production.up.railway.app/api/weather)
-- [ ] Hono adapter — Cloudflare Workers edge support
-- [ ] Dashboard — payment analytics per endpoint
+- [x] Mainnet deployment on Railway: [live 402 paywall](https://agent-billmiddleware-production.up.railway.app/api/weather)
+- [ ] Hono adapter: Cloudflare Workers edge support
+- [ ] Dashboard: payment analytics per endpoint
 
----
 
 ## Why Base?
 
-Base has near-zero gas fees, making micro-transactions (e.g. $0.01) economically viable. AgentBill is designed for the Base ecosystem — settles in USDC, compatible with Coinbase AgentKit and the x402 facilitator out of the box.
+Base has near-zero gas fees, making micro-transactions (e.g. $0.01) economically viable. AgentBill is designed for the Base ecosystem. Settles in USDC, compatible with Coinbase AgentKit and the x402 facilitator out of the box.
 
----
 
 ## License
 
 MIT
 
----
 
 _AgentBill is not affiliated with Coinbase. x402 is an open protocol._
