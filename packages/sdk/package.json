@@ -1,6 +1,6 @@
 {
   "name": "@agent-bill/sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The 'Stripe' for x402 — add USDC payments to any API in two lines",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
