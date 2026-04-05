@@ -41,7 +41,11 @@ export function requirePayment(options: RequirePaymentOptions) {
     | ((req: Request, res: Response, next: NextFunction) => Promise<void>)
     | null = null;
 
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     const { config, server } = getState();
 
     if (!_cachedMiddleware) {
