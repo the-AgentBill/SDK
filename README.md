@@ -94,6 +94,29 @@ const response = await client.fetch("http://localhost:3000/api/weather");
 const data = await response.json();
 ```
 
+### Server - Hono (Cloudflare Workers, Deno, Bun)
+
+```typescript
+import { Hono } from "hono";
+import { agentBill } from "@agent-bill/sdk";
+import { requirePayment } from "@agent-bill/sdk/hono";
+
+agentBill.init({
+  receivingAddress: "0xYourWalletAddress",
+  network: "base-sepolia",
+});
+
+const app = new Hono();
+
+app.get(
+  "/api/weather",
+  requirePayment({ amount: "0.01", currency: "USDC", description: "Weather data" }),
+  (c) => c.json({ city: "New York", temp: "72°F" })
+);
+
+export default app;
+```
+
 ### Next.js (App Router)
 
 ```typescript
@@ -121,7 +144,7 @@ export const GET = withPayment({ amount: "0.01", currency: "USDC" }, handler);
 - [x] Next.js App Router support
 - [x] Payment-enabled fetch client
 - [x] Mainnet deployment on Railway: [live 402 paywall](https://agent-billmiddleware-production.up.railway.app/api/weather)
-- [ ] Hono adapter: Cloudflare Workers edge support
+- [x] Hono adapter: Cloudflare Workers edge support
 - [ ] Dashboard: payment analytics per endpoint
 
 

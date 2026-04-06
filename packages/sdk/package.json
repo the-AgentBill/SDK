@@ -16,6 +16,10 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
+    },
+    "./hono": {
+      "types": "./dist/hono/index.d.ts",
+      "default": "./dist/hono/index.js"
     }
   },
   "scripts": {
@@ -30,22 +34,27 @@
     "access": "public"
   },
   "peerDependencies": {
-    "next": ">=14.0.0"
+    "next": ">=14.0.0",
+    "hono": ">=4.0.0"
   },
   "peerDependenciesMeta": {
     "next": {
+      "optional": true
+    },
+    "hono": {
       "optional": true
     }
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
+    "hono": "^4.0.0",
     "next": "^15.0.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@coinbase/x402": "^2.1.0",
-    "@x402/core": "^2.7.0",
+    "@x402/core": "~2.6.0",
     "@x402/evm": "^2.6.0",
     "@x402/express": "^2.6.0",
     "@x402/fetch": "^2.6.0",

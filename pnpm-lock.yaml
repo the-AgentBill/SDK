@@ -123,8 +123,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
       '@x402/core':
-        specifier: ^2.7.0
-        version: 2.7.0
+        specifier: ~2.6.0
+        version: 2.6.0
       '@x402/evm':
         specifier: ^2.6.0
         version: 2.6.0(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(typescript@5.9.3)(utf-8-validate@6.0.6)
@@ -150,6 +150,9 @@ importers:
       '@types/node':
         specifier: ^25.5.0
         version: 25.5.0
+      hono:
+        specifier: ^4.0.0
+        version: 4.12.10
       next:
         specifier: ^15.0.0
         version: 15.5.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1332,6 +1335,10 @@ packages:
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
+
+  hono@4.12.10:
+    resolution: {integrity: sha512-mx/p18PLy5og9ufies2GOSUqep98Td9q4i/EF6X7yJgAiIopxqdfIO3jbqsi3jRgTgw88jMDEzVKi+V2EF+27w==}
+    engines: {node: '>=16.9.0'}
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -2997,6 +3004,8 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
+
+  hono@4.12.10: {}
 
   http-errors@2.0.1:
     dependencies:

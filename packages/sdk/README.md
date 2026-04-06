@@ -82,6 +82,31 @@ export const GET = withPayment(
 );
 ```
 
+## Quick Start: Server (Hono)
+
+Works on Cloudflare Workers, Deno, Bun, and Node.js.
+
+```typescript
+import { Hono } from "hono";
+import { agentBill } from "@agent-bill/sdk";
+import { requirePayment } from "@agent-bill/sdk/hono";
+
+agentBill.init({
+  receivingAddress: "0xYourWalletAddress",
+  network: "base-sepolia",
+});
+
+const app = new Hono();
+
+app.get(
+  "/api/weather",
+  requirePayment({ amount: "0.01", currency: "USDC", description: "Weather data" }),
+  (c) => c.json({ city: "New York", temp: "72°F" })
+);
+
+export default app;
+```
+
 ## How It Works
 
 1. A request hits your protected endpoint with no payment header
@@ -106,6 +131,16 @@ Call once when your server starts.
 ### `requirePayment(options)` (Express)
 
 Returns Express middleware. Place before your route handler.
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | `string` | Amount in USD, e.g. `"0.01"` |
+| `currency` | `"USDC"` | Currency (USDC only for now) |
+| `description` | `string` (optional) | Shown in the 402 response |
+
+### `requirePayment(options)` (Hono)
+
+Returns Hono middleware. Import from `@agent-bill/sdk/hono`. Place before your route handler.
 
 | Field | Type | Description |
 |---|---|---|

@@ -1,6 +1,5 @@
-import { x402ResourceServer } from "@x402/express";
-import type { Network } from "@x402/express";
-import { HTTPFacilitatorClient } from "@x402/core/server";
+import { x402ResourceServer, HTTPFacilitatorClient } from "@x402/core/server";
+import type { Network } from "@x402/core/types";
 import { registerExactEvmScheme } from "@x402/evm/exact/server";
 import { facilitator as cdpFacilitator } from "@coinbase/x402";
 import type { AgentBillConfig } from "../types";
