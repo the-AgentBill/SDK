@@ -18,6 +18,7 @@ import { x402HTTPResourceServer } from "@x402/core/server";
 import { FastifyAdapter } from "./adapter";
 import { getState, NETWORK_IDS } from "../server/state";
 import type { RequirePaymentOptions } from "../types";
+import { recordPayment } from "../dashboard/store";
 
 interface X402PaymentContext {
   paymentPayload: unknown;
@@ -132,6 +133,18 @@ export function requirePayment(options: RequirePaymentOptions) {
           ctx.declaredExtensions,
           { request: ctx.requestContext, responseBody },
         );
+
+        try {
+          recordPayment({
+            endpoint: ctx.requestContext.path,
+            method: ctx.requestContext.method,
+            amount: options.amount,
+            currency: options.currency,
+            payer: (ctx.paymentPayload as any)?.payload?.permit2Authorization?.from ?? "unknown",
+            success: settleResult.success,
+            network: getState().config.network,
+          });
+        } catch { /* never block payment flow */ }
 
         if (settleResult.success) {
           for (const [key, value] of Object.entries(settleResult.headers)) {
