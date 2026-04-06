@@ -3,7 +3,7 @@
 ![image](./new_logo.png)
 **The "Stripe" for x402. Make any API payable by an AI agent in two lines of code.**
 
-Built on [Base](https://base.org) · Powered by [x402 V2](https://x402.org) · Settles in USDC
+Built on [Base](https://base.org) · Powered by [x402 V2](https://x402.org) · Settles in USDC · [Website](https://the-agentbill.github.io)
 
 **Live demo:** [agent-billmiddleware-production.up.railway.app](https://agent-billmiddleware-production.up.railway.app/api/weather)
 · **Proof of payment:** [Basescan tx](https://basescan.org/tx/0x8be8fc88d7f7fb768315bc4bcd1b438d32b76bfa9ba24a95ed6dacdd2d1224cb)
@@ -137,15 +137,42 @@ export const GET = withPayment({ amount: "0.01", currency: "USDC" }, handler);
 ```
 
 
-## Roadmap
+### Server - Fastify
 
-- [x] `@agent-bill/sdk` v0.1: Unified SDK (server + client)
-- [x] Express payment wall
-- [x] Next.js App Router support
-- [x] Payment-enabled fetch client
-- [x] Mainnet deployment on Railway: [live 402 paywall](https://agent-billmiddleware-production.up.railway.app/api/weather)
-- [x] Hono adapter: Cloudflare Workers edge support
-- [ ] Dashboard: payment analytics per endpoint
+```typescript
+import Fastify from "fastify";
+import { agentBill } from "@agent-bill/sdk";
+import { requirePayment } from "@agent-bill/sdk/fastify";
+
+agentBill.init({
+  receivingAddress: "0xYourWalletAddress",
+  network: "base-sepolia",
+});
+
+const app = Fastify();
+
+app.register(requirePayment({ amount: "0.01", currency: "USDC" }), {
+  prefix: "/api/weather",
+});
+
+app.get("/api/weather", async () => {
+  return { city: "New York", temp: "72°F" };
+});
+
+app.listen({ port: 3000 });
+```
+
+### Dashboard - Payment Analytics
+
+```typescript
+import { createDashboard } from "@agent-bill/sdk/dashboard";
+
+app.use(createDashboard());
+// Visit /dashboard for a live analytics page
+```
+
+Payments are automatically recorded by the Express, Hono, and Fastify adapters. The dashboard shows revenue, top endpoints, top payers, and recent transactions.
+
 
 
 ## Why Base?
