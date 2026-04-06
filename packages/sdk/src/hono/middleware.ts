@@ -16,6 +16,7 @@ import { x402HTTPResourceServer } from "@x402/core/server";
 import { HonoAdapter } from "./adapter";
 import { getState, NETWORK_IDS } from "../server/state";
 import type { RequirePaymentOptions } from "../types";
+import { recordPayment } from "../dashboard/store";
 
 /**
  * Hono middleware factory. Wraps a route with a real x402 V2 payment wall.
@@ -109,8 +110,19 @@ export function requirePayment(
         { request: requestContext, responseBody }
       );
 
+      try {
+        recordPayment({
+          endpoint: adapter.getPath(),
+          method: adapter.getMethod(),
+          amount: options.amount,
+          currency: options.currency,
+          payer: (result.paymentPayload as any)?.payload?.permit2Authorization?.from ?? "unknown",
+          success: settleResult.success,
+          network: config.network,
+        });
+      } catch { /* never block payment flow */ }
+
       if (settleResult.success) {
-        // Add settlement headers to the response
         if (settleResult.headers) {
           const newHeaders = new Headers(ctx.res.headers);
           for (const [key, value] of Object.entries(settleResult.headers)) {
@@ -123,7 +135,6 @@ export function requirePayment(
           });
         }
       } else {
-        // Settlement failed - return 402 error
         const errorResponse = settleResult.response;
         if (errorResponse) {
           for (const [key, value] of Object.entries(

@@ -24,6 +24,10 @@
     "./fastify": {
       "types": "./dist/fastify/index.d.ts",
       "default": "./dist/fastify/index.js"
+    },
+    "./dashboard": {
+      "types": "./dist/dashboard/index.d.ts",
+      "default": "./dist/dashboard/index.js"
     }
   },
   "scripts": {
@@ -65,7 +69,6 @@
     "@coinbase/x402": "^2.1.0",
     "@x402/core": "~2.6.0",
     "@x402/evm": "^2.6.0",
-    "@x402/express": "^2.6.0",
     "@x402/fetch": "^2.6.0",
     "@x402/next": "^2.6.0",
     "express": "^5.2.1",

@@ -1,11 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { mockPaymentMiddleware } = vi.hoisted(() => ({
-  mockPaymentMiddleware: vi.fn(),
-}));
+const { mockProcessHTTPRequest, mockProcessSettlement, mockInitialize } =
+  vi.hoisted(() => ({
+    mockProcessHTTPRequest: vi.fn(),
+    mockProcessSettlement: vi.fn(),
+    mockInitialize: vi.fn(),
+  }));
 
-vi.mock("@x402/express", () => ({
-  paymentMiddleware: mockPaymentMiddleware,
+vi.mock("@x402/core/server", () => ({
+  x402HTTPResourceServer: vi.fn().mockImplementation(() => ({
+    processHTTPRequest: mockProcessHTTPRequest,
+    processSettlement: mockProcessSettlement,
+    initialize: mockInitialize,
+  })),
 }));
 
 vi.mock("../server/state", () => ({
@@ -19,93 +26,158 @@ vi.mock("../server/state", () => ({
   },
 }));
 
+vi.mock("../dashboard/store", () => ({
+  recordPayment: vi.fn(),
+}));
+
 import { requirePayment } from "../server/middleware";
 import { getState } from "../server/state";
+import { recordPayment } from "../dashboard/store";
 
-describe("requirePayment", () => {
+function makeReq(overrides: Record<string, unknown> = {}) {
+  return {
+    method: "GET",
+    path: "/api/weather",
+    originalUrl: "/api/weather",
+    protocol: "http",
+    headers: {},
+    query: {},
+    get: vi.fn(() => "localhost"),
+    ...overrides,
+  } as any;
+}
+
+function makeRes() {
+  const res: any = {
+    statusCode: 200,
+    status: vi.fn(function (code: number) {
+      res.statusCode = code;
+      return res;
+    }),
+    json: vi.fn(function () {
+      return res;
+    }),
+    send: vi.fn(function () {
+      return res;
+    }),
+    setHeader: vi.fn(),
+    type: vi.fn(function () {
+      return res;
+    }),
+  };
+  return res;
+}
+
+describe("requirePayment (Express)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockPaymentMiddleware.mockReturnValue(vi.fn());
+    mockInitialize.mockResolvedValue(undefined);
   });
 
-  it("builds correct route config with default description", async () => {
+  it("calls next() when no payment is required", async () => {
+    mockProcessHTTPRequest.mockResolvedValue({ type: "no-payment-required" });
     const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
-    const req = { route: { path: "/api/weather" } } as any;
-    const res = {} as any;
     const next = vi.fn();
 
-    await middleware(req, res, next);
+    await middleware(makeReq(), makeRes(), next);
 
-    expect(mockPaymentMiddleware).toHaveBeenCalledWith(
-      {
-        "/api/weather": {
-          description: "Payment required: 0.01 USDC",
-          accepts: [
-            {
-              scheme: "exact",
-              payTo: "0xABC",
-              price: "$0.01",
-              network: "eip155:84532",
-            },
-          ],
-        },
+    expect(next).toHaveBeenCalled();
+  });
+
+  it("returns 402 on payment-error", async () => {
+    mockProcessHTTPRequest.mockResolvedValue({
+      type: "payment-error",
+      response: {
+        status: 402,
+        headers: { "X-Payment": "required" },
+        body: { error: "pay up" },
+        isHtml: false,
       },
-      expect.anything(),
+    });
+    const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
+    const res = makeRes();
+
+    await middleware(makeReq(), res, vi.fn());
+
+    expect(res.status).toHaveBeenCalledWith(402);
+    expect(res.json).toHaveBeenCalledWith({ error: "pay up" });
+    expect(res.setHeader).toHaveBeenCalledWith("X-Payment", "required");
+  });
+
+  it("returns HTML 402 when isHtml is true", async () => {
+    mockProcessHTTPRequest.mockResolvedValue({
+      type: "payment-error",
+      response: {
+        status: 402,
+        headers: {},
+        body: "<html>pay</html>",
+        isHtml: true,
+      },
+    });
+    const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
+    const res = makeRes();
+
+    await middleware(makeReq(), res, vi.fn());
+
+    expect(res.type).toHaveBeenCalledWith("html");
+    expect(res.send).toHaveBeenCalledWith("<html>pay</html>");
+  });
+
+  it("settles payment and records to dashboard after handler responds", async () => {
+    mockProcessHTTPRequest.mockResolvedValue({
+      type: "payment-verified",
+      paymentPayload: { payload: { permit2Authorization: { from: "0xPAYER" } } },
+      paymentRequirements: { maxAmountRequired: "10000" },
+      declaredExtensions: {},
+    });
+    mockProcessSettlement.mockResolvedValue({
+      success: true,
+      headers: { "X-Settlement": "ok" },
+    });
+
+    const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
+    const res = makeRes();
+    const next = vi.fn();
+
+    await middleware(makeReq(), res, next);
+
+    expect(next).toHaveBeenCalled();
+
+    // Simulate handler calling res.json()
+    await res.json({ data: "paid content" });
+
+    expect(mockProcessSettlement).toHaveBeenCalled();
+    expect(res.setHeader).toHaveBeenCalledWith("X-Settlement", "ok");
+    expect(recordPayment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        endpoint: "/api/weather",
+        method: "GET",
+        amount: "0.01",
+        currency: "USDC",
+        payer: "0xPAYER",
+        success: true,
+        network: "base-sepolia",
+      }),
     );
   });
 
-  it("uses custom description", async () => {
-    const middleware = requirePayment({
-      amount: "0.01",
-      currency: "USDC",
-      description: "Weather API",
+  it("does not settle when handler returns error status", async () => {
+    mockProcessHTTPRequest.mockResolvedValue({
+      type: "payment-verified",
+      paymentPayload: {},
+      paymentRequirements: {},
     });
-    const req = { route: { path: "/api/weather" } } as any;
 
-    await middleware(req, {} as any, vi.fn());
-
-    const routeConfig = mockPaymentMiddleware.mock.calls[0][0];
-    expect(routeConfig["/api/weather"].description).toBe("Weather API");
-  });
-
-  it("converts :param to [param] in route pattern", async () => {
     const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
-    const req = { route: { path: "/api/data/:id" } } as any;
+    const res = makeRes();
+    res.statusCode = 500;
 
-    await middleware(req, {} as any, vi.fn());
+    await middleware(makeReq(), res, vi.fn());
 
-    const routeConfig = mockPaymentMiddleware.mock.calls[0][0];
-    expect(routeConfig).toHaveProperty("/api/data/[id]");
-  });
+    // Simulate handler calling res.send()
+    await res.send("error");
 
-  it("converts multiple :params", async () => {
-    const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
-    const req = { route: { path: "/api/:v/items/:id" } } as any;
-
-    await middleware(req, {} as any, vi.fn());
-
-    const routeConfig = mockPaymentMiddleware.mock.calls[0][0];
-    expect(routeConfig).toHaveProperty("/api/[v]/items/[id]");
-  });
-
-  it("falls back to /* when req.route is undefined", async () => {
-    const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
-    const req = {} as any;
-
-    await middleware(req, {} as any, vi.fn());
-
-    const routeConfig = mockPaymentMiddleware.mock.calls[0][0];
-    expect(routeConfig).toHaveProperty("/*");
-  });
-
-  it("caches middleware on second call", async () => {
-    const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
-    const req = { route: { path: "/api/weather" } } as any;
-
-    await middleware(req, {} as any, vi.fn());
-    await middleware(req, {} as any, vi.fn());
-
-    expect(mockPaymentMiddleware).toHaveBeenCalledTimes(1);
+    expect(mockProcessSettlement).not.toHaveBeenCalled();
   });
 
   it("throws on unsupported network", async () => {
@@ -115,10 +187,19 @@ describe("requirePayment", () => {
     });
 
     const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
-    const req = { route: { path: "/test" } } as any;
 
-    await expect(middleware(req, {} as any, vi.fn())).rejects.toThrow(
+    await expect(middleware(makeReq(), makeRes(), vi.fn())).rejects.toThrow(
       "Unsupported network",
     );
+  });
+
+  it("initializes httpServer only once", async () => {
+    mockProcessHTTPRequest.mockResolvedValue({ type: "no-payment-required" });
+    const middleware = requirePayment({ amount: "0.01", currency: "USDC" });
+
+    await middleware(makeReq(), makeRes(), vi.fn());
+    await middleware(makeReq(), makeRes(), vi.fn());
+
+    expect(mockInitialize).toHaveBeenCalledTimes(1);
   });
 });
