@@ -2,6 +2,12 @@
 export interface AgentBillConfig {
   receivingAddress: string;
   network: "base-mainnet" | "base-sepolia";
+  /**
+   * Set to false to opt out of anonymous usage telemetry.
+   * No PII is collected — only SDK version, network, and a random instance ID.
+   * Defaults to true.
+   */
+  telemetry?: boolean;
 }
 
 export interface RequirePaymentOptions {

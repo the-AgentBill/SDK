@@ -1,4 +1,8 @@
 import { createPayingClient } from "@agent-bill/client";
+import dotenv from "dotenv";
+dotenv.config();
+
+const DEMO_URL = "https://agent-billmiddleware-production.up.railway.app";
 
 async function main() {
   const privateKey = process.env.CLIENT_PRIVATE_KEY as `0x${string}`;
@@ -9,9 +13,9 @@ async function main() {
     network: "base-mainnet",
   });
 
-  console.log(`Calling http://localhost:3000/api/weather as ${client.address}...`);
+  console.log(`Calling ${DEMO_URL}/api/weather as ${client.address}...`);
 
-  const response = await client.fetch("http://localhost:3000/api/weather");
+  const response = await client.fetch(`${DEMO_URL}/api/weather`);
 
   console.log("Status:", response.status);
 

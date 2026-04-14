@@ -1,0 +1,11 @@
+name = "agentbill-telemetry"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "TELEMETRY"
+id = "16154ecf30204a97a6ae2b71616528d2"
+preview_id = "85f40fe58deb408eb1142522d093d929"
+
+[vars]

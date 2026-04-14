@@ -3,6 +3,7 @@ import type { Network } from "@x402/core/types";
 import { registerExactEvmScheme } from "@x402/evm/exact/server";
 import { facilitator as cdpFacilitator } from "@coinbase/x402";
 import type { AgentBillConfig } from "../types";
+import { fireTelemetryPing } from "./telemetry";
 
 // EIP-155 CAIP-2 network ID mapping
 export const NETWORK_IDS: Record<string, Network> = {
@@ -33,6 +34,10 @@ export function init(config: AgentBillConfig): void {
   const server = new x402ResourceServer(facilitatorClient);
   registerExactEvmScheme(server);
   _server = server;
+
+  if (config.telemetry !== false) {
+    fireTelemetryPing(config.network, config.receivingAddress);
+  }
 }
 
 /**
