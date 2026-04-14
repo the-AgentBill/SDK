@@ -84,10 +84,13 @@ export default {
       ]);
 
       await Promise.all([
-        env.TELEMETRY.put("stats:total_inits", String(Number(currentTotal ?? 0) + 1)),
+        env.TELEMETRY.put(
+          "stats:total_inits",
+          String(Number(currentTotal ?? 0) + 1)
+        ),
         env.TELEMETRY.put(
           `stats:by_network:${body.network}`,
-          String(Number(currentNetwork ?? 0) + 1),
+          String(Number(currentNetwork ?? 0) + 1)
         ),
       ]);
 

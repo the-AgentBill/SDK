@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 
 const TELEMETRY_ENDPOINT = "https://agentbill-telemetry.mulandicecilia4.workers.dev/ping";
-const SDK_VERSION = "0.2.0";
+const SDK_VERSION = "0.2.1";
 
 /**
  * Fires a single anonymous ping when the SDK initialises.
