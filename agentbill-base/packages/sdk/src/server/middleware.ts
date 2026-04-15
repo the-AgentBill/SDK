@@ -8,6 +8,7 @@ import { Request, Response, NextFunction } from "express";
 import { x402HTTPResourceServer } from "@x402/core/server";
 import { ExpressAdapter } from "./adapter";
 import { getState, NETWORK_IDS } from "./state";
+import { registerEndpoint } from "./discovery";
 import { recordPayment } from "../dashboard/store";
 import type { RequirePaymentOptions } from "../types";
 
@@ -25,6 +26,7 @@ import type { RequirePaymentOptions } from "../types";
 export function requirePayment(options: RequirePaymentOptions) {
   let httpServer: x402HTTPResourceServer | null = null;
   let initialized = false;
+  let registered = false;
 
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { config, server } = getState();
@@ -58,6 +60,18 @@ export function requirePayment(options: RequirePaymentOptions) {
     }
 
     const adapter = new ExpressAdapter(req);
+
+    if (!registered) {
+      registered = true;
+      registerEndpoint({
+        path: adapter.getPath(),
+        method: adapter.getMethod(),
+        price: options.amount,
+        currency: options.currency,
+        description: options.description,
+      });
+    }
+
     const requestContext = {
       adapter,
       path: adapter.getPath(),
