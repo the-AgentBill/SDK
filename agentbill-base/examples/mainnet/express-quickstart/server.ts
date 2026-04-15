@@ -1,5 +1,6 @@
 import express from "express";
 import { agentBill, requirePayment } from "@agent-bill/sdk";
+import { createDashboard } from "@agent-bill/sdk/dashboard";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -27,6 +28,8 @@ app.get(
     res.json({ city: "New York", temp: "72°F", humidity: "60%" });
   }
 );
+app.use(createDashboard());
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
