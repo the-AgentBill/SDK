@@ -24,6 +24,8 @@ AgentBill makes it two lines.
 
 A unified SDK that wraps x402 V2. Use it as a **server** to add payment walls, or as a **client** to auto-pay endpoints.
 
+**Zero platform fees.** Other hosted wrappers take a cut of every transaction. AgentBill is self-hosted — every dollar paid to your API goes directly to your wallet.
+
 ```typescript
 import { agentBill, requirePayment } from "@agent-bill/sdk";
 

@@ -12,6 +12,33 @@ One package for both the **server** (payment wall) and **client** (paying agent)
 npm install @agent-bill/sdk
 ```
 
+## Quick Start: Server (Fastify)
+
+```typescript
+import Fastify from "fastify";
+import { agentBill } from "@agent-bill/sdk";
+import { requirePayment } from "@agent-bill/sdk/fastify";
+
+agentBill.init({
+  receivingAddress: "0xYourWalletAddress",
+  network: "base-sepolia",
+});
+
+const app = Fastify();
+
+app.register(requirePayment({ amount: "0.01", currency: "USDC" }), {
+  prefix: "/api/weather",
+});
+
+app.get("/api/weather", async () => {
+  return { city: "New York", temp: "72°F" };
+});
+
+app.listen({ port: 3000 });
+```
+
+---
+
 ## Quick Start: Server (Express)
 
 ```typescript
@@ -159,9 +186,25 @@ Wraps a Next.js App Router route handler with a payment wall. Import from `@agen
 | `options.description` | `string` (optional) | Shown in the 402 response |
 | `handler` | `(req: NextRequest) => Promise<NextResponse>` | Route handler to protect |
 
+### `createDashboard()` (Express)
+
+Import from `@agent-bill/sdk/dashboard`. Returns an Express Router that mounts a live payment analytics dashboard.
+
+```typescript
+import { createDashboard } from "@agent-bill/sdk/dashboard";
+
+app.use(createDashboard());
+// Visit /dashboard — revenue, top endpoints, top payers, recent transactions
+// Visit /api/stats — raw JSON stats
+```
+
+Payments are recorded automatically by `requirePayment()`. No extra configuration needed. Persist data across restarts by setting `AGENTBILL_DATA_DIR` to a writable directory.
+
+---
+
 ### `createDiscoveryRoute()` (Express)
 
-Returns an Express Router that serves `GET /.well-known/x402-discovery` — a machine-readable manifest of all your gated endpoints. Auto-indexed by [x402scout](https://x402scout.com) and compatible agent registries.
+Returns an Express Router that serves `GET /.well-known/x402-discovery` — a machine-readable manifest of all your payment-gated endpoints. Any compatible AI agent or registry can discover your API and its pricing automatically, with no manual registration.
 
 Mount once after `agentBill.init()`:
 

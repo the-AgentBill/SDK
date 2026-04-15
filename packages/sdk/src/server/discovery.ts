@@ -1,9 +1,9 @@
 /**
  * x402 discovery manifest — served at /.well-known/x402-discovery
  *
- * Auto-indexed by x402scout and compatible registries. Every endpoint wrapped
- * with requirePayment() is registered here on its first request, making the
- * server discoverable with zero extra configuration.
+ * A machine-readable manifest of all payment-gated endpoints on this server.
+ * Every endpoint wrapped with requirePayment() is registered here on its first
+ * request, making the server discoverable with zero extra configuration.
  *
  * Mount with:
  *   app.use(createDiscoveryRoute())
@@ -55,7 +55,7 @@ export function getDiscoveryManifest() {
  * Mount once after agentBill.init():
  *   app.use(createDiscoveryRoute())
  *
- * x402scout and compatible agent registries will auto-index this endpoint.
+ * Any compatible AI agent or registry can discover and pay for your endpoints automatically.
  */
 export function createDiscoveryRoute(): Router {
   const router = Router();

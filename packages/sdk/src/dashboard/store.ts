@@ -36,9 +36,16 @@ if (EVENTS_FILE) {
     mkdirSync(DATA_DIR!, { recursive: true });
     const saved = JSON.parse(readFileSync(EVENTS_FILE, "utf8")) as PaymentEvent[];
     _events.push(...saved.slice(-MAX_EVENTS));
+    console.log(`[AgentBill] Dashboard persistence enabled — loading events from ${EVENTS_FILE}`);
   } catch {
     // File doesn't exist yet — start fresh
   }
+} else {
+  console.warn(
+    "[AgentBill] Dashboard running in-memory mode — payment history will be lost on restart.\n" +
+    "           Set AGENTBILL_DATA_DIR to a writable directory to enable persistence.\n" +
+    "           e.g. AGENTBILL_DATA_DIR=/data (Railway volume) or AGENTBILL_DATA_DIR=./.agentbill"
+  );
 }
 
 function persist(): void {
