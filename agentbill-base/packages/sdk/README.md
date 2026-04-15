@@ -159,6 +159,35 @@ Wraps a Next.js App Router route handler with a payment wall. Import from `@agen
 | `options.description` | `string` (optional) | Shown in the 402 response |
 | `handler` | `(req: NextRequest) => Promise<NextResponse>` | Route handler to protect |
 
+### `createDiscoveryRoute()` (Express)
+
+Returns an Express Router that serves `GET /.well-known/x402-discovery` — a machine-readable manifest of all your gated endpoints. Auto-indexed by [x402scout](https://x402scout.com) and compatible agent registries.
+
+Mount once after `agentBill.init()`:
+
+```typescript
+import { agentBill, requirePayment, createDiscoveryRoute } from "@agent-bill/sdk";
+
+agentBill.init({ receivingAddress: "0xYourAddress", network: "base-mainnet" });
+
+app.use(createDiscoveryRoute()); // serves /.well-known/x402-discovery
+
+app.post("/api/analyze", requirePayment({ amount: "0.10", currency: "USDC" }), handler);
+// ↑ auto-registered in the manifest on first request — no extra config needed
+```
+
+Example response at `GET /.well-known/x402-discovery`:
+```json
+{
+  "name": "AgentBill Service",
+  "network": "base-mainnet",
+  "wallet": "0xabc...",
+  "endpoints": [
+    { "path": "/api/analyze", "method": "POST", "price": "0.10", "currency": "USDC" }
+  ]
+}
+```
+
 ### `createPayingClient(config)`
 
 Import from `@agent-bill/sdk/client`.
