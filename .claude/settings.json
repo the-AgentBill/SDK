@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.testnet.locuschain.com)",
+      "WebFetch(domain:synthesis.mandate.md)",
+      "WebFetch(domain:www.npmjs.com)"
+    ]
+  }
+}

@@ -1,3 +1,6 @@
+import { readFileSync, writeFile, mkdirSync } from "fs";
+import { join } from "path";
+
 export interface PaymentEvent {
   id: string;
   timestamp: number;
@@ -23,6 +26,26 @@ export interface DashboardStats {
 const MAX_EVENTS = 1000;
 const _events: PaymentEvent[] = [];
 
+// Optional file persistence — set AGENTBILL_DATA_DIR to a writable directory
+// (e.g. a Railway volume mounted at /data) to survive restarts and redeploys.
+const DATA_DIR = process.env.AGENTBILL_DATA_DIR ?? null;
+const EVENTS_FILE = DATA_DIR ? join(DATA_DIR, "events.json") : null;
+
+if (EVENTS_FILE) {
+  try {
+    mkdirSync(DATA_DIR!, { recursive: true });
+    const saved = JSON.parse(readFileSync(EVENTS_FILE, "utf8")) as PaymentEvent[];
+    _events.push(...saved.slice(-MAX_EVENTS));
+  } catch {
+    // File doesn't exist yet — start fresh
+  }
+}
+
+function persist(): void {
+  if (!EVENTS_FILE) return;
+  writeFile(EVENTS_FILE, JSON.stringify(_events), () => {});
+}
+
 function isToday(timestamp: number): boolean {
   const now = new Date();
   const date = new Date(timestamp);
@@ -44,6 +67,7 @@ export function recordPayment(
   if (_events.length > MAX_EVENTS) {
     _events.shift();
   }
+  persist();
 }
 
 export function getEvents(): PaymentEvent[] {
@@ -101,4 +125,5 @@ export function getStats(): DashboardStats {
 
 export function clearEvents(): void {
   _events.length = 0;
+  persist();
 }
